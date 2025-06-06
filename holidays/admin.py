@@ -9,14 +9,14 @@ class HolidayAdmin(admin.ModelAdmin):
         'fecha', 
         'tipo', 
         'get_aplicacion_display',
-        'eobligatorio', 
+        'obligatorio', 
         'activo',
         'created'
     ]
     
     list_filter = [
         'tipo', 
-        'eobligatorio', 
+        'obligatorio', 
         'activo', 
         'es_global',
         'fecha',
@@ -34,7 +34,7 @@ class HolidayAdmin(admin.ModelAdmin):
             'fields': ('nombre', 'fecha', 'tipo', 'descripcion')
         }),
         ('Configuración', {
-            'fields': ('eobligatorio', 'es_global', 'activo')
+            'fields': ('obligatorio', 'es_global', 'activo')
         }),
         ('Auditoría', {
             'fields': ('created', 'updated'),
@@ -97,7 +97,7 @@ class HolidayAdmin(admin.ModelAdmin):
                     fecha=nueva_fecha,
                     tipo=feriado.tipo,
                     descripcion=feriado.descripcion,
-                    eobligatorio=feriado.eobligatorio,
+                    obligatorio=feriado.obligatorio,
                     es_global=feriado.es_global
                 )
                 duplicados += 1

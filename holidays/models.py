@@ -14,7 +14,7 @@ class Holiday(models.Model):
     fecha = models.DateField(verbose_name="Fecha")
     tipo = models.CharField(max_length=20, choices=HOLIDAY_TYPES, default='nacional')
     descripcion = models.TextField(blank=True, null=True, verbose_name="Descripción")
-    eobligatorio = models.BooleanField(default=True, verbose_name="Es Obligatorio")
+    obligatorio = models.BooleanField(default=True, verbose_name="Es Obligatorio")
     
     # CAMBIO: Feriados globales por defecto
     es_global = models.BooleanField(default=True, verbose_name="Aplica a Todas las Empresas")
