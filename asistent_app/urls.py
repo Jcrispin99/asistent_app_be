@@ -32,16 +32,18 @@ urlpatterns = [
     path('api/v1/companies/', include('companies.urls')),
     path('api/v1/departments/', include('departments.urls')),
     path('api/v1/positions/', include('positions.urls')),
+    path('api/v1/employees/', include('employees.urls')),
+    path('api/v1/holidays/', include('holidays.urls')),
+    path('api/v1/users/', include('users.urls')),
 
-        # Autenticación JWT
+    # Autenticación JWT
     path('api/auth/login/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     
-   # Login/Logout para la API browsable
+    # Login/Logout para la API browsable
     path('api-auth/', include('rest_framework.urls')),
-   # Documentación de la API
+    # Documentación de la API
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
     path('api/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
-
 ]
