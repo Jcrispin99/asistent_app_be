@@ -34,6 +34,7 @@ urlpatterns = [
     path('api/v1/positions/', include('positions.urls')),
     path('api/v1/employees/', include('employees.urls')),
     path('api/v1/holidays/', include('holidays.urls')),
+    path('api/v1/attendance/', include('attendance.urls')),
     path('api/v1/users/', include('users.urls')),
 
     # Autenticación JWT
