@@ -18,6 +18,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
                 'dni': obj.empleado.dni,
                 'nombres': obj.empleado.nombres,
                 'apellidos': obj.empleado.apellidos,
-                'empresa': obj.empleado.empresa.nombre if obj.empleado.empresa else None
+                'empresa': obj.empleado.empresa.razon_social if obj.empleado.empresa else None
             }
         return None

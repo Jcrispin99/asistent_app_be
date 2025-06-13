@@ -1,0 +1,154 @@
+GUÍA PARA CONSUMIR LA API DE COMPANIES
+
+=== INFORMACIÓN BÁSICA ===
+Endpoint base: /api/v1/companies/
+Autenticación: JWT Bearer Token requerido
+Métodos HTTP disponibles: GET, POST, PUT, PATCH, DELETE
+
+=== ESTRUCTURA DEL MODELO COMPANY ===
+Campos disponibles:
+- id: Identificador único (auto-generado)
+- razon_social: Razón social de la empresa (requerido, máx 255 caracteres)
+- ruc: RUC de la empresa (requerido, 11 dígitos)
+- direccion: Dirección de la empresa (opcional, máx 500 caracteres)
+- telefono: Teléfono de la empresa (opcional, máx 20 caracteres)
+- email: Email de la empresa (opcional, formato email válido)
+- logo: Logo de la empresa (opcional, archivo de imagen)
+- firma: Firma digital (opcional, archivo de imagen)
+- activa: Estado activo/inactivo (booleano, por defecto True)
+- active_employees_count: Contador de empleados activos (solo lectura)
+
+=== ENDPOINTS DISPONIBLES ===
+
+1. LISTAR EMPRESAS
+   Método: GET /api/v1/companies/
+   Respuesta: Lista con campos básicos (id, razon_social, activa)
+
+2. OBTENER EMPRESA ESPECÍFICA
+   Método: GET /api/v1/companies/{id}/
+   Respuesta: Todos los campos del modelo
+
+3. CREAR NUEVA EMPRESA
+   Método: POST /api/v1/companies/
+   Campos requeridos: razon_social, ruc
+   Campos opcionales: direccion, telefono, email, logo, firma, activa
+
+4. ACTUALIZAR EMPRESA COMPLETA
+   Método: PUT /api/v1/companies/{id}/
+   Requiere todos los campos obligatorios
+
+5. ACTUALIZAR EMPRESA PARCIAL
+   Método: PATCH /api/v1/companies/{id}/
+   Solo los campos que se desean modificar
+
+6. ELIMINAR EMPRESA
+   Método: DELETE /api/v1/companies/{id}/
+
+=== FILTROS Y BÚSQUEDA ===
+
+Filtros disponibles:
+- Por estado activo: ?activa=true o ?activa=false
+
+Búsqueda:
+- Buscar en razon_social: ?search=texto_a_buscar
+
+Ordenamiento:
+- Ordenar por cualquier campo: ?ordering=campo
+- Orden descendente: ?ordering=-campo
+- Múltiples campos: ?ordering=campo1,-campo2
+
+Combinar parámetros:
+- Usar & para combinar: ?activa=true&search=empresa&ordering=razon_social
+
+=== VALIDACIONES ===
+
+1. RUC:
+   - Debe tener exactamente 11 dígitos
+   - Solo números permitidos
+   - Debe ser único en el sistema
+
+2. Email:
+   - Formato de email válido si se proporciona
+   - No es requerido
+
+3. Razón Social:
+   - Campo obligatorio
+   - Máximo 255 caracteres
+
+=== AUTENTICACIÓN ===
+
+Todas las peticiones requieren:
+Header: Authorization: Bearer {access_token}
+
+Donde {access_token} es el token JWT obtenido del login.
+
+=== CÓDIGOS DE RESPUESTA ===
+
+200: Operación exitosa (GET, PUT, PATCH)
+201: Recurso creado exitosamente (POST)
+204: Recurso eliminado exitosamente (DELETE)
+400: Error de validación o datos incorrectos
+401: No autenticado (token faltante o inválido)
+403: Sin permisos para realizar la operación
+404: Recurso no encontrado
+500: Error interno del servidor
+
+=== ESTRUCTURA DE RESPUESTAS ===
+
+Lista de empresas (GET /api/v1/companies/):
+{
+  "count": número_total,
+  "next": "url_siguiente_página",
+  "previous": "url_página_anterior",
+  "results": [
+    {
+      "id": 1,
+      "razon_social": "Empresa Ejemplo",
+      "activa": true
+    }
+  ]
+}
+
+Detalle de empresa (GET /api/v1/companies/{id}/):
+{
+  "id": 1,
+  "razon_social": "Empresa Ejemplo S.A.C.",
+  "ruc": "12345678901",
+  "direccion": "Av. Ejemplo 123",
+  "telefono": "01-1234567",
+  "email": "contacto@empresa.com",
+  "logo": "url_del_logo",
+  "firma": "url_de_la_firma",
+  "activa": true,
+  "active_employees_count": 25
+}
+
+=== CASOS DE USO COMUNES ===
+
+1. Obtener todas las empresas activas:
+   GET /api/v1/companies/?activa=true
+
+2. Buscar empresa por nombre:
+   GET /api/v1/companies/?search=nombre_empresa
+
+3. Crear nueva empresa:
+   POST /api/v1/companies/
+   Body: {"razon_social": "Nueva Empresa", "ruc": "12345678901"}
+
+4. Desactivar empresa:
+   PATCH /api/v1/companies/{id}/
+   Body: {"activa": false}
+
+5. Actualizar información de contacto:
+   PATCH /api/v1/companies/{id}/
+   Body: {"telefono": "nuevo_telefono", "email": "nuevo@email.com"}
+
+=== NOTAS IMPORTANTES ===
+
+- Siempre incluir el header de autorización
+- El RUC debe ser único en todo el sistema
+- Las empresas inactivas no aparecen en búsquedas por defecto
+- Los archivos (logo, firma) se suben como multipart/form-data
+- La paginación está habilitada por defecto
+- Todos los campos de texto son case-sensitive en búsquedas exactas
+- La búsqueda es case-insensitive y busca coincidencias parciales
