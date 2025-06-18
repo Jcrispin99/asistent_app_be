@@ -38,14 +38,22 @@ class EmployeeRegistrationSerializer(serializers.ModelSerializer):
         return data
     
     def validate_dni(self, value):
-        # Verificar que no exista empleado con este DNI
-        if Employee.objects.filter(dni=value).exists():
+        # Verificar si ya existe un empleado con este DNI
+        request = self.context.get('request')
+        if request and request.method in ['PUT', 'PATCH']:
+            # Si es una actualización, excluir el empleado actual de la validación
+            instance = self.instance
+            employee_exists = Employee.objects.filter(dni=value).exclude(id=instance.id).exists()
+            user_exists = User.objects.filter(username=value).exclude(empleado=instance).exists()
+        else:
+            # Si es una creación, verificar si ya existe
+            employee_exists = Employee.objects.filter(dni=value).exists()
+            user_exists = User.objects.filter(username=value).exists()
+        
+        if employee_exists:
             raise serializers.ValidationError("Ya existe un empleado con este DNI.")
-        
-        # Verificar que no exista usuario con este username (DNI)
-        if User.objects.filter(username=value).exists():
-            raise serializers.ValidationError("Ya existe un usuario con este DNI.")
-        
+        if user_exists:
+            raise serializers.ValidationError("Ya existe un usuario con este DNI como nombre de usuario.")
         return value
     
     @transaction.atomic
@@ -91,6 +99,64 @@ class EmployeeRegistrationSerializer(serializers.ModelSerializer):
                 'email': user.email,
                 'is_active': user.is_active
             }
+        }
+    
+    @transaction.atomic
+    def update(self, instance, validated_data):
+        # Extraer campos específicos del usuario
+        password = validated_data.pop('password', None)
+        validated_data.pop('confirm_password', None)
+        user_email = validated_data.pop('email', None)
+        is_active = validated_data.pop('is_active', None)
+        
+        # Obtener el usuario asociado al empleado
+        try:
+            user = User.objects.get(empleado=instance)
+        except User.DoesNotExist:
+            user = None
+        
+        # Actualizar el empleado
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
+        # Si existe un usuario asociado, actualizarlo
+        if user:
+            # Actualizar username si cambió el DNI
+            if instance.dni != user.username:
+                user.username = instance.dni
+            
+            # Actualizar otros campos del usuario si se proporcionaron
+            if user_email:
+                user.email = user_email
+            if is_active is not None:
+                user.is_active = is_active
+            if password:
+                user.set_password(password)
+            
+            # Actualizar nombres
+            user.first_name = instance.nombres
+            user.last_name = instance.apellidos
+            user.save()
+        
+        # Retornar datos estructurados para la vista
+        return {
+            'employee': {
+                'id': instance.id,
+                'dni': instance.dni,
+                'nombres': instance.nombres,
+                'apellidos': instance.apellidos,
+                'codigo_empleado': instance.codigo_empleado,
+                'empresa': instance.empresa.razon_social,
+                'departamento': instance.departamento.nombre,
+                'cargo': instance.cargo.nombre
+            },
+            'user': {
+                'id': user.id if user else None,
+                'username': user.username if user else None,
+                'email': user.email if user else None,
+                'is_active': user.is_active if user else None
+            } if user else None
         }
 
 class EmployeeSerializer(serializers.ModelSerializer):

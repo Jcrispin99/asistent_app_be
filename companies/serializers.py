@@ -5,7 +5,7 @@ class CompanyBasicSerializer(serializers.ModelSerializer):
     """Serializer básico para listados y referencias"""
     class Meta:
         model = Company
-        fields = ['id', 'razon_social', 'activa']
+        fields = ['id', 'razon_social', 'ruc', 'email', 'activa']
 
 class CompanyDetailSerializer(serializers.ModelSerializer):
     """Serializer completo para detalles y CRUD"""

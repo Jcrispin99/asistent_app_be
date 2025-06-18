@@ -29,3 +29,20 @@ class EmployeeRegistrationViewSet(viewsets.ModelViewSet):
                 'user': employee_data['user']
             }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        if serializer.is_valid():
+            employee_data = serializer.save()
+            return Response({
+                'message': 'Empleado y usuario actualizados exitosamente',
+                'employee': employee_data['employee'],
+                'user': employee_data['user']
+            })
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def partial_update(self, request, *args, **kwargs):
+        kwargs['partial'] = True
+        return self.update(request, *args, **kwargs)
